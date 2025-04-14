@@ -1,11 +1,15 @@
 <!-- <script src="https://youthsforum.com/wp-content/uploads/2021/05/html5-qrcode.min_.js"></script> -->
 <script src="./html5-qrcode.min.js"></script>
 <style>
+
+  body {
+    background-color: gray;
+  }
   .result {
     background-color: green;
     color: #fff;
-    padding: 20px;
-    padding: 2px;
+    padding: 20px; 
+   
   }
 
   .row {
@@ -13,11 +17,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 84px); 
+    padding: 20px;
   }
   .col{
     width: 100%;
+    margin: 10px auto;
+    text-align: center;
   }
 
   #reader {
@@ -53,8 +59,10 @@
     console.log("function onScanError");
   }
 
+//const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
   var html5QrcodeScanner = new Html5QrcodeScanner(
-    "reader", { fps: 10, qrbox: 400 });
+    "reader", { fps: 30, qrbox:  { width: 250, height: 250 } });
   html5QrcodeScanner.render(onScanSuccess, onScanError);
 
 </script>
