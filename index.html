@@ -6,32 +6,17 @@
     <title>Scanner avec Cadre</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 10px;
+        }
+
         #qr-reader {
             position: relative;
             width: 100%;
             max-width: 700px;
             margin: auto;
-        }
-
-        .scan-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 250px;
-            width: 90%;
-            height: 150px;
-            height: 300px;
-            transform: translate(-50%, -50%);
-            border: 2px solid red;
-            border-radius: 10px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 10px;
         }
 
         #qr-reader-wrapper {
@@ -41,9 +26,7 @@
             margin: auto;
         }
 
-        #qr-reader {
-            width: 100%;
-        }
+        
 
         .scan-line {
             position: absolute;
@@ -72,20 +55,15 @@
 
 <body>
 
-    <h2>📷 Scanner avec Cadre Visuel TEST </h2>
+    <h2>📷 Scanner avec Cadre Visuel </h2>
 
-    <!-- <div id="qr-reader">
-    <div class="scan-frame"></div>
-  </div> -->
 
     <div id="qr-reader-wrapper">
         <div id="qr-reader"></div>
 
-        <!-- Lignes superposées   
+        <!-- Lignes superposées
+        <div class="scan-line horizontal"></div> -->
         <div class="scan-line vertical"></div>
-        -->
-        <div class="scan-line horizontal"></div> 
-        
     </div>
 
 
@@ -103,25 +81,7 @@
         });
         html5QrcodeScanner.render(onScanSuccess);
 
-/*
- function onScanSuccess(decodedText, decodedResult) {
-    console.log(`Code scanné : ${decodedText}`, decodedResult);
-    alert("✅ Code : " + decodedText);
-  }
-
-  const html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
-    fps: 10,
-    qrbox: { width: 250, height: 150 }
-  });
-  html5QrcodeScanner.render(onScanSuccess);
-
-
-*/
-
-
-
-
-
+ 
     </script>
 
 </body>
