@@ -1,23 +1,35 @@
 <!-- <script src="https://youthsforum.com/wp-content/uploads/2021/05/html5-qrcode.min_.js"></script> -->
 <script src="./html5-qrcode.min.js"></script>
 <style>
-  .result{
+  .result {
     background-color: green;
-    color:#fff;
-    padding:20px;
+    color: #fff;
+    padding: 20px;
+    padding: 2px;
   }
-  .row{
-    display:flex;
+
+  .row {
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    height: 100%;
   }
+  .col{
+    width: 100%;
+  }
+
+  #reader {
+    width: 100%; 
+  }
+
 </style>
 
 <br><br><br><br>
 <div class="row">
   <div class="col">
-    <div style="width:500px;" id="reader"></div>
+    <div styles="width:500px;" id="reader"></div>
   </div>
   <div class="col" style="padding:30px;">
     <h4>SCAN RESULT</h4>
@@ -27,20 +39,22 @@
 
 <h1>Lings</h1>
 <a href="https://scanapp.org/">Linge 1</a>
+<a href="https://miloumohamed.github.io/QRCode_Phone/#scan-using-file">Linge 2</a>
+
 
 
 <script type="text/javascript">
-function onScanSuccess(qrCodeMessage) {
-    document.getElementById('result-code').innerHTML = '<span class="result">'+qrCodeMessage+'</span>';
-}
+  function onScanSuccess(qrCodeMessage) {
+    document.getElementById('result-code').innerHTML = '<span class="result">' + qrCodeMessage + '</span>';
+  }
 
-function onScanError(errorMessage) {
-  //handle scan error
-  console.log("function onScanError");
-}
+  function onScanError(errorMessage) {
+    //handle scan error
+    console.log("function onScanError");
+  }
 
-var html5QrcodeScanner = new Html5QrcodeScanner(
+  var html5QrcodeScanner = new Html5QrcodeScanner(
     "reader", { fps: 10, qrbox: 250 });
-html5QrcodeScanner.render(onScanSuccess, onScanError);
+  html5QrcodeScanner.render(onScanSuccess, onScanError);
 
 </script>
