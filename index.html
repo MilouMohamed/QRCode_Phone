@@ -2,12 +2,65 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scanner Code-Barres</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Centrage de la zone de scanner */
+    #scanner-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    #scanner {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Style pour les boutons de caméra */
+    #camera-buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      background-color: #e0ffe0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>📷 Scanner un Code-Barres</h2>
+  <h2>📷 Scanner un Code-Barres 3 1 </h2>
 
   <!-- Liste des boutons pour sélectionner la caméra -->
   <div id="camera-buttons"></div>
