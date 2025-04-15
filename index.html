@@ -42,7 +42,7 @@
       100% { border-color: black; }
     }
 
-    /* Masque flou à l'extérieur du cadre */
+    /* Masque flou autour du cadre - intérieur net, extérieur flou */
     #overlay-mask {
       position: absolute;
       top: 0;
@@ -61,18 +61,21 @@
       width: 100%;
       height: 100%;
       backdrop-filter: blur(10px);
-      mask: 
+      background-color: rgba(0,0,0,0.3);
+      mask:
         radial-gradient(
           ellipse 150px 75px at center,
           rgba(0,0,0,0) 0%,
           rgba(0,0,0,1) 100%
         );
-      -webkit-mask: 
+      -webkit-mask:
         radial-gradient(
           ellipse 150px 75px at center,
           rgba(0,0,0,0) 0%,
           rgba(0,0,0,1) 100%
         );
+      mask-composite: exclude;
+      -webkit-mask-composite: destination-out;
     }
 
     #result {
