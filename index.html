@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Scanner Code-Barres Produit</title>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    #scanner-wrapper {
+      position: relative;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    #reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .scan-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 260px;
+      height: 160px;
+      transform: translate(-50%, -50%);
+      border: 2px dashed red;
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      background: #dff0d8;
+      border-radius: 8px;
+      padding: 10px;
+      display: inline-block;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📷 Scanner un Code-Barres Produit</h2>
+
+  <div id="scanner-wrapper">
+    <div id="reader"></div>
+    <div class="scan-frame"></div>
+  </div>
+
+  <div id="result">Code scanné : Aucun</div>
+
+  <button onclick="stopScanner()">Arrêter</button>
+
+  <script>
+    const scanner = new Html5Qrcode("reader");
+
+    function startScanner() {
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+          const cameraId = devices[0].id;
+
+          scanner.start(
+            cameraId,
+            {
+              fps: 10,
+              qrbox: { width: 260, height: 160 },
+              formatsToSupport: [
+                "EAN_13", "UPC_A", "UPC_E", "EAN_8", "CODE_128", "CODE_39"
+              ]
+            },
+            (decodedText, decodedResult) => {
+              document.getElementById("result").innerText = "✅ Code : " + decodedText;
+              stopScanner(); // stop après lecture
+            },
+            (errorMessage) => {
+              // console.log("Scan error : ", errorMessage);
+            }
+          );
+        } else {
+          alert("Aucune caméra détectée.");
+        }
+      }).catch(err => {
+        alert("Erreur d'accès à la caméra : " + err);
+      });
+    }
+
+    function stopScanner() {
+      scanner.stop().then(() => {
+        console.log("Scanner arrêté");
+      }).catch(err => {
+        console.error("Erreur à l'arrêt du scanner : ", err);
+      });
+    }
+
+    // Démarrage auto
+    startScanner();
+  </script>
+
+</body>
+</html>
