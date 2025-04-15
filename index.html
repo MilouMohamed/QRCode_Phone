@@ -2,142 +2,108 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Scanner Code-Barres Produit</title>
+  <title>Scanner Code-Barres</title>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
-      background-color: #f8f9fa;
     }
-
-    #scanner-wrapper {
-      position: relative;
+    #reader {
+      width: 100%;
       max-width: 400px;
       margin: auto;
     }
-
-    #reader {
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .scan-frame {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 260px;
-      height: 160px;
-      transform: translate(-50%, -50%);
-      border: 2px dashed red;
-      border-radius: 8px;
-      pointer-events: none;
-      z-index: 10;
-    }
-
     #result {
       margin-top: 20px;
-      font-size: 20px;
-      background: #dff0d8;
-      border-radius: 8px;
-      padding: 10px;
-      display: inline-block;
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
       font-size: 18px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
+      background-color: #e0ffe0;
+      padding: 10px;
       border-radius: 8px;
     }
-
-    button:hover {
-      background-color: #0056b3;
+    .camera-buttons {
+      margin-top: 20px;
+    }
+    .camera-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h2>📷 Scanner un Code-Barres Produit</h2>
+  <h2>📷 Scanner un Code-Barres</h2>
 
-  <div id="scanner-wrapper">
-    <div id="reader"></div>
-    <div class="scan-frame"></div>
-  </div>
+  <div class="camera-buttons" id="cameraButtons"></div>
 
-  <div id="result">Code scanné : Aucun</div>
+  <div id="reader" style="display: none;"></div>
+  <div id="result"></div>
 
-  <button onclick="stopScanner()">Arrêter</button>
-
-
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
   <script>
-    const scanner = new Html5Qrcode("reader");
-  
-    function startScanner() {
-      Html5Qrcode.getCameras().then(devices => {
-        if (devices && devices.length) {
-          // 🎯 Tenter de détecter caméra large angle
-          let wideCamera = devices.find(device =>
-            device.label.toLowerCase().includes('wide') ||
-            device.label.toLowerCase().includes('0.5') ||
-            device.label.toLowerCase().includes('ultrawide')
-          );
-  
-          let backCamera = devices.find(device =>
-            device.label.toLowerCase().includes('back')
-          );
-  
-          const cameraId = wideCamera?.id || backCamera?.id || devices[0].id;
-  
-          scanner.start(
-            cameraId,
-            {
-              fps: 10,
-              qrbox: { width: 260, height: 160 },
-              formatsToSupport: [
-                "EAN_13", "UPC_A", "UPC_E", "EAN_8", "CODE_128", "CODE_39"
-              ]
-            },
-            (decodedText, decodedResult) => {
-              document.getElementById("result").innerText = "✅ Code : " + decodedText;
-              stopScanner(); // Stop après lecture
-            },
-            (errorMessage) => {
-              // console.log("Scan erreur : ", errorMessage);
-            }
-          );
-        } else {
-          alert("Aucune caméra détectée.");
+    const readerId = "reader";
+    let scanner;
+
+    function startScannerWithCamera(cameraId) {
+      if (scanner) {
+        scanner.stop().then(() => {
+          scanner.clear();
+          scanner = new Html5Qrcode(readerId);
+          runScanner(cameraId);
+        }).catch(() => {
+          // Ignore stop errors
+          scanner = new Html5Qrcode(readerId);
+          runScanner(cameraId);
+        });
+      } else {
+        scanner = new Html5Qrcode(readerId);
+        runScanner(cameraId);
+      }
+    }
+
+    function runScanner(cameraId) {
+      document.getElementById(readerId).style.display = "block";
+
+      scanner.start(
+        cameraId,
+        {
+          fps: 50,
+          qrbox: { width: 280, height: 180 },
+          formatsToSupport: [
+            "EAN_13", "UPC_A", "UPC_E", "EAN_8", "CODE_128", "CODE_39"
+          ]
+        },
+        (decodedText, decodedResult) => {
+          document.getElementById("result").innerText = "✅ Code : " + decodedText;
+          scanner.stop(); // Stop après détection
+        },
+        (errorMessage) => {
+          // console.log("Erreur : ", errorMessage);
         }
-      }).catch(err => {
-        alert("Erreur d'accès à la caméra : " + err);
-      });
+      );
     }
-  
-    function stopScanner() {
-      scanner.stop().then(() => {
-        console.log("Scanner arrêté.");
-      }).catch(err => {
-        console.error("Erreur à l'arrêt du scanner : ", err);
+
+    // Générer les boutons dynamiquement
+    Html5Qrcode.getCameras().then(devices => {
+      const buttonContainer = document.getElementById("cameraButtons");
+
+      if (devices.length === 0) {
+        buttonContainer.innerHTML = "❌ Aucune caméra détectée.";
+        return;
+      }
+
+      devices.forEach(device => {
+        const btn = document.createElement("button");
+        btn.innerText = device.label || "Caméra inconnue";
+        btn.onclick = () => startScannerWithCamera(device.id);
+        buttonContainer.appendChild(btn);
       });
-    }
-  
-    // Démarrage automatique
-    window.onload = () => {
-      startScanner();
-    };
+    }).catch(err => {
+      alert("Erreur d'accès aux caméras : " + err);
+    });
   </script>
-  
-
-
 
 </body>
 </html>
