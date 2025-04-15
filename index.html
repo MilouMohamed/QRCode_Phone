@@ -75,14 +75,22 @@
 
   <button onclick="stopScanner()">Arrêter</button>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
   <script>
     const scanner = new Html5Qrcode("reader");
-
+  
     function startScanner() {
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
-          const cameraId = devices[0].id;
-
+          // 🔁 Rechercher la caméra arrière
+          const backCamera = devices.find(device =>
+            device.label.toLowerCase().includes('back')
+          );
+  
+          // 🎯 Utiliser caméra arrière si trouvée, sinon la première
+          const cameraId = backCamera ? backCamera.id : devices[0].id;
+  
           scanner.start(
             cameraId,
             {
@@ -94,10 +102,10 @@
             },
             (decodedText, decodedResult) => {
               document.getElementById("result").innerText = "✅ Code : " + decodedText;
-              stopScanner(); // stop après lecture
+              stopScanner(); // Arrêt après scan
             },
             (errorMessage) => {
-              // console.log("Scan error : ", errorMessage);
+              // console.log("Erreur scan : ", errorMessage);
             }
           );
         } else {
@@ -107,18 +115,24 @@
         alert("Erreur d'accès à la caméra : " + err);
       });
     }
-
+  
     function stopScanner() {
       scanner.stop().then(() => {
-        console.log("Scanner arrêté");
+        console.log("Scanner arrêté.");
       }).catch(err => {
         console.error("Erreur à l'arrêt du scanner : ", err);
       });
     }
-
-    // Démarrage auto
-    startScanner();
+  
+    // Démarrage auto au chargement
+    window.onload = () => {
+      startScanner();
+    };
   </script>
+  
+
+
+
 
 </body>
 </html>
