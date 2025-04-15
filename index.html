@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Scanner Code-Barres</title>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #reader-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    #reader {
+      width: 100%;
+    }
+
+    /* 🔲 Cadre de scan animé */
+    #scan-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 150px;
+      transform: translate(-50%, -50%);
+      border: 3px solid black;
+      border-radius: 8px;
+      animation: blink 0.5s infinite;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes blink {
+      0% { border-color: black; }
+      50% { border-color: white; }
+      100% { border-color: black; }
+    }
+
+    /* 🟫 Masque flou autour du cadre */
+    #overlay-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      z-index: 1;
+      pointer-events: none;
+      mask: radial-gradient(ellipse 300px 150px at center, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 61%);
+      -webkit-mask: radial-gradient(ellipse 300px 150px at center, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 61%);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      background-color: #e0ffe0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .camera-buttons {
+      margin-top: 20px;
+    }
+
+    .camera-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📷 Scanner un Code-Barres</h2>
+
+  <div class="camera-buttons" id="cameraButtons"></div>
+
+  <div id="reader-container" style="display: none;">
+    <div id="reader"></div>
+    <div id="overlay-mask"></div> <!-- 🎭 Masque flou -->
+    <div id="scan-frame"></div> <!-- 🔲 Cadre animé -->
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    const readerId = "reader";
+    let scanner;
+
+    function startScannerWithCamera(cameraId) {
+      if (scanner) {
+        scanner.stop().then(() => {
+          scanner.clear();
+          scanner = new Html5Qrcode(readerId);
+          runScanner(cameraId);
+        }).catch(() => {
+          scanner = new Html5Qrcode(readerId);
+          runScanner(cameraId);
+        });
+      } else {
+        scanner = new Html5Qrcode(readerId);
+        runScanner(cameraId);
+      }
+    }
+
+    function runScanner(cameraId) {
+      document.getElementById("reader-container").style.display = "block";
+      document.getElementById("scan-frame").style.display = "block";
+      document.getElementById("overlay-mask").style.display = "block";
+
+      scanner.start(
+        cameraId,
+        {
+          fps: 60, // 🚀 Ultra rapide
+          qrbox: { width: 300, height: 150 },
+          formatsToSupport: [
+            "EAN_13", "UPC_A", "UPC_E", "EAN_8", "CODE_128", "CODE_39"
+          ],
+          rememberLastUsedCamera: true
+        },
+        (decodedText, decodedResult) => {
+          document.getElementById("result").innerText = "✅ Code : " + decodedText;
+          scanner.stop(); // ⛔ Stop après lecture
+          document.getElementById("scan-frame").style.display = "none";
+          document.getElementById("overlay-mask").style.display = "none";
+        },
+        (errorMessage) => {
+          // Silencieux pour éviter de spam
+        }
+      );
+    }
+
+    Html5Qrcode.getCameras().then(devices => {
+      const buttonContainer = document.getElementById("cameraButtons");
+
+      if (devices.length === 0) {
+        buttonContainer.innerHTML = "❌ Aucune caméra détectée.";
+        return;
+      }
+
+      devices.forEach(device => {
+        const btn = document.createElement("button");
+        btn.innerText = device.label || "Caméra inconnue";
+        btn.onclick = () => startScannerWithCamera(device.id);
+        buttonContainer.appendChild(btn);
+      });
+    }).catch(err => {
+      alert("Erreur d'accès aux caméras : " + err);
+    });
+  </script>
+
+</body>
+</html>
