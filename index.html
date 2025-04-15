@@ -77,19 +77,25 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
   <script>
     const scanner = new Html5Qrcode("reader");
   
     function startScanner() {
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
-          // 🔁 Rechercher la caméra arrière
-          const backCamera = devices.find(device =>
+          // 🎯 Tenter de détecter caméra large angle
+          let wideCamera = devices.find(device =>
+            device.label.toLowerCase().includes('wide') ||
+            device.label.toLowerCase().includes('0.5') ||
+            device.label.toLowerCase().includes('ultrawide')
+          );
+  
+          let backCamera = devices.find(device =>
             device.label.toLowerCase().includes('back')
           );
   
-          // 🎯 Utiliser caméra arrière si trouvée, sinon la première
-          const cameraId = backCamera ? backCamera.id : devices[0].id;
+          const cameraId = wideCamera?.id || backCamera?.id || devices[0].id;
   
           scanner.start(
             cameraId,
@@ -102,10 +108,10 @@
             },
             (decodedText, decodedResult) => {
               document.getElementById("result").innerText = "✅ Code : " + decodedText;
-              stopScanner(); // Arrêt après scan
+              stopScanner(); // Stop après lecture
             },
             (errorMessage) => {
-              // console.log("Erreur scan : ", errorMessage);
+              // console.log("Scan erreur : ", errorMessage);
             }
           );
         } else {
@@ -124,13 +130,12 @@
       });
     }
   
-    // Démarrage auto au chargement
+    // Démarrage automatique
     window.onload = () => {
       startScanner();
     };
   </script>
   
-
 
 
 
