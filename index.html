@@ -10,10 +10,26 @@
       text-align: center;
       padding: 20px;
     }
-    #reader {
+    #reader-container {
+      position: relative;
       width: 100%;
       max-width: 400px;
       margin: auto;
+    }
+    #reader {
+      width: 100%;
+    }
+    #scan-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 140px;
+      transform: translate(-50%, -50%);
+      border: 3px solid red;
+      border-radius: 8px;
+      box-sizing: border-box;
+      pointer-events: none;
     }
     #result {
       margin-top: 20px;
@@ -39,13 +55,18 @@
 
   <div class="camera-buttons" id="cameraButtons"></div>
 
-  <div id="reader" style="display: none;"></div>
+  <div id="reader-container" style="display: none;">
+    <div id="reader"></div>
+    <div id="scan-frame"></div> <!-- 🔲 Le carré rouge au centre -->
+  </div>
+
   <div id="result"></div>
 
   <script>
     const readerId = "reader";
     let scanner;
 
+    // Fonction pour démarrer le scanner avec la caméra choisie
     function startScannerWithCamera(cameraId) {
       if (scanner) {
         scanner.stop().then(() => {
@@ -53,7 +74,6 @@
           scanner = new Html5Qrcode(readerId);
           runScanner(cameraId);
         }).catch(() => {
-          // Ignore stop errors
           scanner = new Html5Qrcode(readerId);
           runScanner(cameraId);
         });
@@ -63,29 +83,32 @@
       }
     }
 
+    // Fonction pour configurer le scanner avec les options optimisées
     function runScanner(cameraId) {
-      document.getElementById(readerId).style.display = "block";
+      document.getElementById("reader-container").style.display = "block";
 
       scanner.start(
         cameraId,
         {
-          fps: 50,
-          qrbox: { width: 280, height: 180 },
+          fps: 30, // 🏎️ Plus rapide que 10 !
+          qrbox: { width: 200, height: 140 }, // 📏 Zone réduite = détection plus rapide
           formatsToSupport: [
             "EAN_13", "UPC_A", "UPC_E", "EAN_8", "CODE_128", "CODE_39"
-          ]
+          ],
+          rememberLastUsedCamera: true // Bonus : retient la caméra utilisée
         },
         (decodedText, decodedResult) => {
           document.getElementById("result").innerText = "✅ Code : " + decodedText;
           scanner.stop(); // Stop après détection
         },
         (errorMessage) => {
+          // ⚠️ Option : commentaire pour éviter ralentissements
           // console.log("Erreur : ", errorMessage);
         }
       );
     }
 
-    // Générer les boutons dynamiquement
+    // Récupérer la liste des caméras et afficher des boutons pour chaque caméra
     Html5Qrcode.getCameras().then(devices => {
       const buttonContainer = document.getElementById("cameraButtons");
 
