@@ -36,7 +36,7 @@
 
     button {
       font-size: 16px;
-      padding: 8px 12px;
+      padding: 10px 20px;
       margin: 5px;
       background-color: #4CAF50;
       color: white;
@@ -49,18 +49,29 @@
       background-color: #45a049;
     }
 
+    /* Résultat en bas */
     #result {
-      margin-top: 10px;
+      margin-top: 20px;
       font-size: 18px;
       background-color: #e0ffe0;
       padding: 10px;
       border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* Responsive buttons */
+    @media (max-width: 600px) {
+      button {
+        font-size: 14px;
+        padding: 8px 15px;
+        margin: 4px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h2>📷 Scanner un Code-Barres 3 1 </h2>
+  <h2>📷 Scanner un Code-Barres</h2>
 
   <!-- Liste des boutons pour sélectionner la caméra -->
   <div id="camera-buttons"></div>
