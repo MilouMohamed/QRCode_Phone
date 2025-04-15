@@ -24,7 +24,6 @@
       height: auto;
     }
 
-    /* Cadre de scan */
     #scan-frame {
       position: absolute;
       top: 50%;
@@ -44,7 +43,6 @@
       100% { border-color: black; }
     }
 
-    /* Flou autour du cadre */
     #overlay-mask {
       position: absolute;
       top: 0;
@@ -77,11 +75,19 @@
       padding: 10px;
       border-radius: 8px;
     }
+
+    #camera-select {
+      margin: 20px auto;
+      font-size: 16px;
+      padding: 8px;
+    }
   </style>
 </head>
 <body>
 
   <h2>📷 Scanner un Code-Barres</h2>
+
+  <select id="camera-select"></select>
 
   <div id="scanner-container">
     <div id="overlay-mask"></div>
@@ -92,31 +98,59 @@
   <div id="result"></div>
 
   <script>
-    Quagga.init({
-      inputStream: {
-        type: "LiveStream",
-        target: document.querySelector('#scanner'),
-        constraints: {
-          facingMode: "environment"
-        }
-      },
-      decoder: {
-        readers: ["ean_reader", "code_128_reader", "upc_reader"]
-      },
-      locate: true
-    }, function(err) {
-      if (err) {
-        console.error(err);
-        alert("Erreur de démarrage du scanner : " + err);
-        return;
+    async function initCameraList() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      const select = document.getElementById('camera-select');
+      select.innerHTML = '';
+
+      videoDevices.forEach((device, index) => {
+        const option = document.createElement('option');
+        option.value = device.deviceId;
+        option.text = device.label || `Caméra ${index + 1}`;
+        select.appendChild(option);
+      });
+
+      select.onchange = () => {
+        Quagga.stop();
+        startScanner(select.value);
+      };
+
+      if (videoDevices.length > 0) {
+        startScanner(videoDevices[0].deviceId);
       }
-      Quagga.start();
-    });
+    }
+
+    function startScanner(deviceId) {
+      Quagga.init({
+        inputStream: {
+          type: "LiveStream",
+          target: document.querySelector('#scanner'),
+          constraints: {
+            deviceId: { exact: deviceId },
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["ean_reader", "code_128_reader", "upc_reader"]
+        },
+        locate: true
+      }, function(err) {
+        if (err) {
+          console.error(err);
+          alert("Erreur de démarrage du scanner : " + err);
+          return;
+        }
+        Quagga.start();
+      });
+    }
 
     Quagga.onDetected(function(data) {
       document.getElementById("result").innerText = "✅ Code : " + data.codeResult.code;
       Quagga.stop();
     });
+
+    initCameraList();
   </script>
 
 </body>
