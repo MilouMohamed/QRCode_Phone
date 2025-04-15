@@ -105,7 +105,7 @@
 </head>
 <body>
 
-  <h2>📷 Scanner un Code-Barres (Plugin QuaggaJS)</h2>
+  <h2>📷 Scanner un Code-Barres (Plugin QuaggaJS) 2</h2>
 
   <div id="camera-buttons"></div>
 
@@ -122,7 +122,7 @@
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       const buttonContainer = document.getElementById('camera-buttons');
-      buttonContainer.innerHTML = '';
+      buttonContainer.innerHTML = '';  // Clear any existing buttons
 
       if (videoDevices.length === 0) {
         const noCameraButton = document.createElement('button');
