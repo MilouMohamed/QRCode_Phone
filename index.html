@@ -9,6 +9,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
+      background-color: #f4f4f4;
     }
 
     #scanner-container {
@@ -22,8 +23,10 @@
     #scanner {
       width: 100%;
       height: auto;
+      background: black;
     }
 
+    /* Cadre de scan animé */
     #scan-frame {
       position: absolute;
       top: 50%;
@@ -33,7 +36,7 @@
       transform: translate(-50%, -50%);
       border: 3px solid black;
       animation: blink 0.5s infinite;
-      z-index: 2;
+      z-index: 3;
       pointer-events: none;
     }
 
@@ -43,6 +46,7 @@
       100% { border-color: black; }
     }
 
+    /* Masque flou externe */
     #overlay-mask {
       position: absolute;
       top: 0;
@@ -50,19 +54,43 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1;
-      backdrop-filter: blur(10px);
-      background-color: rgba(0, 0, 0, 0.3);
-      mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
-      -webkit-mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
+      z-index: 2;
+    }
+
+    #overlay-mask::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.3);
+      mask-image: radial-gradient(ellipse 150px 75px at center, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+      -webkit-mask-image: radial-gradient(ellipse 150px 75px at center, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
       mask-composite: exclude;
       -webkit-mask-composite: destination-out;
-      padding: calc(50% - 75px) calc(50% - 150px);
-      box-sizing: border-box;
+    }
+
+    #camera-buttons {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .camera-button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .camera-button:hover {
+      background-color: #45a049;
     }
 
     #result {
@@ -71,20 +99,15 @@
       background-color: #e0ffe0;
       padding: 10px;
       border-radius: 8px;
-    }
-
-    #camera-select {
-      margin: 20px auto;
-      font-size: 16px;
-      padding: 8px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
 
-  <h2>📷 Scanner un Code-Barres plugin 2 </h2>
+  <h2>📷 Scanner un Code-Barres (Plugin QuaggaJS)</h2>
 
-  <select id="camera-select"></select>
+  <div id="camera-buttons"></div>
 
   <div id="scanner-container">
     <div id="overlay-mask"></div>
@@ -98,23 +121,26 @@
     async function initCameraList() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      const select = document.getElementById('camera-select');
-      select.innerHTML = '';
+      const buttonContainer = document.getElementById('camera-buttons');
+      buttonContainer.innerHTML = '';
 
-      videoDevices.forEach((device, index) => {
-        const option = document.createElement('option');
-        option.value = device.deviceId;
-        option.text = device.label || `Caméra ${index + 1}`;
-        select.appendChild(option);
-      });
-
-      select.onchange = () => {
-        Quagga.stop();
-        startScanner(select.value);
-      };
-
-      if (videoDevices.length > 0) {
-        startScanner(videoDevices[0].deviceId);
+      if (videoDevices.length === 0) {
+        const noCameraButton = document.createElement('button');
+        noCameraButton.innerText = "❌ Aucune caméra détectée";
+        noCameraButton.disabled = true;
+        buttonContainer.appendChild(noCameraButton);
+      } else {
+        videoDevices.forEach((device, index) => {
+          const button = document.createElement('button');
+          button.innerText = device.label || `Caméra ${index + 1}`;
+          button.className = 'camera-button';
+          button.onclick = () => {
+            Quagga.stop();
+            startScanner(device.deviceId);
+          };
+          buttonContainer.appendChild(button);
+        });
+        startScanner(videoDevices[0].deviceId); // Par défaut, utiliser la première caméra
       }
     }
 
